@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Дневник самопомощи — 7 дней</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cream: #FAF6F0;
+    --warm: #F0E8DC;
+    --sage: #8A9E8C;
+    --sage-dark: #5C7A5E;
+    --terracotta: #C4785A;
+    --brown: #3D2B1F;
+    --brown-light: #7A5C48;
+    --gold: #C9A96E;
+    --text: #2A1F17;
+    --text-light: #7A6A5A;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--cream);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  /* COVER */
+  .cover {
+    min-height: 100vh;
+    background: linear-gradient(160deg, var(--brown) 0%, #5C3A28 60%, var(--brown-light) 100%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 48px 32px;
+    position: relative;
+    overflow: hidden;
+  }
+  .cover::before {
+    content: '';
+    position: absolute;
+    top: -80px; right: -80px;
+    width: 300px; height: 300px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(201,169,110,0.12) 0%, transparent 70%);
+  }
+  .cover::after {
+    content: '';
+    position: absolute;
+    bottom: -60px; left: -60px;
+    width: 240px; height: 240px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(138,158,140,0.1) 0%, transparent 70%);
+  }
+  .cover-ornament {
+    font-size: 36px;
+    margin-bottom: 24px;
+    opacity: 0.8;
+  }
+  .cover-label {
+    font-size: 11px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 16px;
+  }
+  .cover-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 42px;
+    font-weight: 300;
+    color: var(--cream);
+    line-height: 1.15;
+    margin-bottom: 12px;
+  }
+  .cover-title em { font-style: italic; color: var(--gold); }
+  .cover-subtitle {
+    font-size: 14px;
+    color: rgba(250,246,240,0.6);
+    line-height: 1.7;
+    max-width: 280px;
+    margin: 0 auto 40px;
+  }
+  .cover-divider {
+    width: 60px;
+    height: 1px;
+    background: var(--gold);
+    margin: 0 auto 32px;
+    opacity: 0.5;
+  }
+  .name-field-label {
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: rgba(250,246,240,0.5);
+    margin-bottom: 8px;
+  }
+  .name-field {
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(201,169,110,0.3);
+    border-radius: 10px;
+    padding: 12px 20px;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 18px;
+    color: var(--cream);
+    text-align: center;
+    width: 240px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .name-field:focus { border-color: var(--gold); }
+  .name-field::placeholder { color: rgba(250,246,240,0.3); font-style: italic; }
+  .start-btn {
+    margin-top: 32px;
+    padding: 14px 36px;
+    background: var(--gold);
+    color: var(--brown);
+    border: none;
+    border-radius: 30px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    cursor: pointer;
+    transition: all 0.3s;
+    box-shadow: 0 4px 20px rgba(201,169,110,0.3);
+  }
+  .start-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(201,169,110,0.4); }
+
+  /* JOURNAL */
+  .journal { display: none; }
+  .journal.active { display: block; }
+
+  .journal-header {
+    background: var(--brown);
+    padding: 20px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 50;
+  }
+  .journal-logo {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 18px;
+    font-weight: 300;
+    color: var(--cream);
+  }
+  .journal-logo span { color: var(--gold); font-style: italic; }
+  .user-name-display {
+    font-size: 12px;
+    color: rgba(250,246,240,0.6);
+  }
+
+  /* DAY NAVIGATION */
+  .day-nav {
+    display: flex;
+    overflow-x: auto;
+    gap: 6px;
+    padding: 14px 20px;
+    background: var(--warm);
+    scrollbar-width: none;
+    border-bottom: 1px solid rgba(61,43,31,0.1);
+  }
+  .day-nav::-webkit-scrollbar { display: none; }
+  .day-btn {
+    flex-shrink: 0;
+    padding: 7px 14px;
+    border-radius: 20px;
+    border: 1.5px solid rgba(61,43,31,0.15);
+    background: transparent;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    color: var(--text-light);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .day-btn:hover { border-color: var(--sage); color: var(--sage-dark); }
+  .day-btn.active { background: var(--brown); border-color: var(--brown); color: var(--cream); }
+  .day-btn.saved { background: var(--sage); border-color: var(--sage); color: white; }
+
+  /* DAY PAGE */
+  .day-page { display: none; padding: 24px 20px 100px; }
+  .day-page.active { display: block; }
+
+  .day-badge {
+    display: inline-block;
+    background: rgba(196,120,90,0.12);
+    color: var(--terracotta);
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    padding: 5px 12px;
+    border-radius: 12px;
+    margin-bottom: 10px;
+  }
+  .day-heading {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 28px;
+    font-weight: 400;
+    color: var(--brown);
+    line-height: 1.2;
+    margin-bottom: 6px;
+  }
+  .day-heading em { font-style: italic; color: var(--sage-dark); }
+  .day-desc {
+    font-size: 13px;
+    color: var(--text-light);
+    line-height: 1.6;
+    margin-bottom: 24px;
+  }
+
+  /* QUESTION BLOCKS */
+  .question-block {
+    background: white;
+    border-radius: 14px;
+    padding: 18px;
+    margin-bottom: 14px;
+    border: 1px solid rgba(61,43,31,0.07);
+    box-shadow: 0 2px 10px rgba(61,43,31,0.04);
+  }
+  .q-icon { font-size: 20px; margin-bottom: 8px; }
+  .q-label {
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--text-light);
+    margin-bottom: 6px;
+  }
+  .q-text {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 17px;
+    color: var(--brown);
+    line-height: 1.4;
+    margin-bottom: 12px;
+    font-style: italic;
+  }
+  .q-input {
+    width: 100%;
+    min-height: 80px;
+    background: var(--cream);
+    border: 1px solid rgba(61,43,31,0.1);
+    border-radius: 10px;
+    padding: 12px 14px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    color: var(--text);
+    resize: none;
+    outline: none;
+    line-height: 1.6;
+    transition: border-color 0.2s;
+  }
+  .q-input:focus { border-color: var(--sage); background: white; }
+  .q-input::placeholder { color: var(--text-light); font-style: italic; }
+
+  /* MOOD BLOCK */
+  .mood-block {
+    background: white;
+    border-radius: 14px;
+    padding: 18px;
+    margin-bottom: 14px;
+    border: 1px solid rgba(61,43,31,0.07);
+    box-shadow: 0 2px 10px rgba(61,43,31,0.04);
+  }
+  .mood-title {
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--text-light);
+    margin-bottom: 6px;
+  }
+  .mood-question {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 17px;
+    color: var(--brown);
+    line-height: 1.4;
+    margin-bottom: 14px;
+    font-style: italic;
+  }
+  .mood-emojis {
+    display: flex;
+    justify-content: space-between;
+    gap: 6px;
+  }
+  .mood-btn {
+    flex: 1;
+    padding: 10px 4px;
+    border-radius: 10px;
+    border: 1.5px solid rgba(61,43,31,0.1);
+    background: var(--cream);
+    font-size: 22px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: center;
+  }
+  .mood-btn:hover { border-color: var(--gold); transform: scale(1.05); }
+  .mood-btn.selected { border-color: var(--gold); background: rgba(201,169,110,0.12); }
+  .mood-label {
+    font-size: 9px;
+    color: var(--text-light);
+    display: block;
+    margin-top: 3px;
+    letter-spacing: 0.05em;
+  }
+
+  /* SCALE BLOCK */
+  .scale-block {
+    background: white;
+    border-radius: 14px;
+    padding: 18px;
+    margin-bottom: 14px;
+    border: 1px solid rgba(61,43,31,0.07);
+    box-shadow: 0 2px 10px rgba(61,43,31,0.04);
+  }
+  .scale-question {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 17px;
+    color: var(--brown);
+    line-height: 1.4;
+    margin-bottom: 14px;
+    font-style: italic;
+  }
+  .scale-row {
+    display: flex;
+    gap: 6px;
+  }
+  .scale-num {
+    flex: 1;
+    height: 36px;
+    border-radius: 8px;
+    border: 1.5px solid rgba(61,43,31,0.12);
+    background: var(--cream);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-light);
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .scale-num:hover { border-color: var(--terracotta); color: var(--terracotta); }
+  .scale-num.selected { background: var(--terracotta); border-color: var(--terracotta); color: white; }
+  .scale-labels {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 6px;
+    font-size: 10px;
+    color: var(--text-light);
+  }
+
+  /* GRATITUDE */
+  .gratitude-block {
+    background: linear-gradient(135deg, rgba(138,158,140,0.08), rgba(201,169,110,0.06));
+    border: 1px solid rgba(138,158,140,0.2);
+    border-radius: 14px;
+    padding: 18px;
+    margin-bottom: 14px;
+  }
+  .gratitude-title {
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--sage-dark);
+    margin-bottom: 4px;
+  }
+  .gratitude-q {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 17px;
+    color: var(--brown);
+    line-height: 1.4;
+    margin-bottom: 12px;
+    font-style: italic;
+  }
+  .gratitude-items {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .gratitude-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  .g-num {
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    background: var(--sage);
+    color: white;
+    font-size: 11px;
+    font-weight: 500;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+  .g-input {
+    flex: 1;
+    background: white;
+    border: 1px solid rgba(61,43,31,0.1);
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    color: var(--text);
+    outline: none;
+    transition: border-color 0.2s;
+    line-height: 1.5;
+  }
+  .g-input:focus { border-color: var(--sage); }
+  .g-input::placeholder { color: var(--text-light); font-style: italic; }
+
+  /* SAVE BUTTON */
+  .save-day-btn {
+    width: 100%;
+    padding: 15px;
+    background: linear-gradient(135deg, var(--sage-dark), var(--sage));
+    color: white;
+    border: none;
+    border-radius: 14px;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 18px;
+    font-weight: 400;
+    letter-spacing: 0.05em;
+    cursor: pointer;
+    margin-top: 8px;
+    transition: all 0.3s;
+    box-shadow: 0 4px 16px rgba(92,122,94,0.25);
+  }
+  .save-day-btn:hover { transform: translateY(-1px); box-shadow: 0 8px 24px rgba(92,122,94,0.35); }
+
+  /* TOAST */
+  .toast {
+    position: fixed;
+    bottom: 24px; left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: var(--brown);
+    color: var(--cream);
+    padding: 12px 24px;
+    border-radius: 24px;
+    font-size: 13px;
+    opacity: 0;
+    transition: all 0.4s;
+    pointer-events: none;
+    white-space: nowrap;
+    z-index: 200;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .day-page.active { animation: fadeIn 0.35s ease; }
+</style>
+</head>
+<body>
+
+<!-- COVER -->
+<div class="cover" id="cover">
+  <div class="cover-ornament">🌸</div>
+  <div class="cover-label">Коррекционный фитнес · 7 дней</div>
+  <h1 class="cover-title">Дневник<br><em>самопомощи</em></h1>
+  <p class="cover-subtitle">Твоё личное пространство для наблюдений, ощущений и роста в течение курса</p>
+  <div class="cover-divider"></div>
+  <div class="name-field-label">Как тебя зовут?</div>
+  <input class="name-field" id="nameInput" type="text" placeholder="Твоё имя..." maxlength="40">
+  <button class="start-btn" onclick="startJournal()">Начать дневник →</button>
+</div>
+
+<!-- JOURNAL -->
+<div class="journal" id="journal">
+  <div class="journal-header">
+    <div class="journal-logo">Дневник <span>самопомощи</span></div>
+    <div class="user-name-display" id="userNameDisplay"></div>
+  </div>
+
+  <div class="day-nav" id="dayNav"></div>
+
+  <!-- DAY PAGES -->
+  <div id="dayPages"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const days = [
+  {
+    title: "Пробуждение", em: "тела",
+    desc: "Первый день — самый важный. Позволь себе просто присутствовать и замечать.",
+    questions: [
+      { icon: "🌅", label: "С чего начался день", q: "Как ты себя чувствуешь прямо сейчас, в самом начале курса?", placeholder: "Опиши своё состояние — физическое и эмоциональное..." },
+      { icon: "🏃", label: "После тренировки", q: "Что ты заметила в своём теле во время и после тренировки?", placeholder: "Какие мышцы работали, что было легко, что сложно..." },
+      { icon: "🌬️", label: "Дыхательная практика", q: "Как изменилось твоё состояние после дыхательной гимнастики?", placeholder: "Ощущения в теле, в голове, в эмоциях..." },
+      { icon: "💆", label: "Массаж лица", q: "Что почувствовала во время массажа? Какие зоны были напряжены?", placeholder: "Напряжение, расслабление, удивление..." }
+    ]
+  },
+  {
+    title: "Осанка и", em: "баланс",
+    desc: "Второй день — учимся слышать сигналы тела и выстраивать правильное положение.",
+    questions: [
+      { icon: "🌿", label: "Начало дня", q: "Как ты себя ощущаешь сегодня по сравнению со вчера?", placeholder: "Заметила ли изменения после первого дня?" },
+      { icon: "🏃", label: "После тренировки", q: "Что нового заметила в своей осанке и положении тела?", placeholder: "Где держишь напряжение, что изменилось..." },
+      { icon: "🌬️", label: "Дыхание", q: "Удалось ли дышать глубже, чем вчера? Что помогло?", placeholder: "Опиши свой опыт с дыхательными упражнениями..." },
+      { icon: "💆", label: "Массаж", q: "Стало ли легче расслаблять мышцы лица сегодня?", placeholder: "Сравни с первым днём..." }
+    ]
+  },
+  {
+    title: "Дыхание и", em: "сила",
+    desc: "Третий день — углубляемся в связь дыхания с силой и устойчивостью.",
+    questions: [
+      { icon: "💪", label: "Энергия", q: "Как твой уровень энергии сегодня? Что на него влияет?", placeholder: "Сон, питание, настроение, погода..." },
+      { icon: "🏃", label: "Тренировка", q: "Какое упражнение далось легче всего? Какое было вызовом?", placeholder: "Опиши свои наблюдения..." },
+      { icon: "🌬️", label: "Дыхательная практика", q: "Как дыхание связано с твоей силой и устойчивостью?", placeholder: "Заметила ли разницу в выполнении упражнений с правильным дыханием?" },
+      { icon: "🌟", label: "Открытие дня", q: "Какое главное открытие или наблюдение было сегодня?", placeholder: "Что удивило, что обрадовало, что озадачило..." }
+    ]
+  },
+  {
+    title: "Мобильность", em: "суставов",
+    desc: "Четвёртый день — раскрываем тело, восстанавливаем подвижность.",
+    questions: [
+      { icon: "🌀", label: "Подвижность", q: "Какие суставы или зоны тела ощущаются наиболее скованными?", placeholder: "Шея, плечи, бёдра, колени — где больше всего ограничений?" },
+      { icon: "🏃", label: "Тренировка", q: "Как твоё тело отвечало на упражнения для суставов?", placeholder: "Боль, дискомфорт, облегчение, радость движения..." },
+      { icon: "💆", label: "Уход за лицом", q: "Как ощущается кожа и мышцы лица после массажа сегодня?", placeholder: "Тонус, мягкость, цвет, напряжение..." },
+      { icon: "📝", label: "Письмо телу", q: "Напиши короткое письмо своему телу — что хочешь ему сказать?", placeholder: "Слова благодарности, заботы, намерения..." }
+    ]
+  },
+  {
+    title: "Расслабление и", em: "восстановление",
+    desc: "Пятый день — учимся ценить покой так же, как движение.",
+    questions: [
+      { icon: "😴", label: "Качество сна", q: "Как ты спала последние ночи? Заметила ли изменения?", placeholder: "Глубина сна, сновидения, самочувствие утром..." },
+      { icon: "🏃", label: "Восстановительная тренировка", q: "Как ощущается мягкое движение по сравнению с активными днями?", placeholder: "Что нравится в восстановительных практиках?" },
+      { icon: "🌬️", label: "Расслабляющее дыхание", q: "Что происходит в твоём теле когда ты по-настоящему расслабляешься?", placeholder: "Физические ощущения, мысли, эмоции..." },
+      { icon: "💛", label: "Самозабота", q: "Что сегодня ты сделала для себя просто потому что хотела?", placeholder: "Любая мелочь считается — чашка чая, прогулка, звонок подруге..." }
+    ]
+  },
+  {
+    title: "Укрепление", em: "кора",
+    desc: "Шестой день — находим свой центр силы — физический и внутренний.",
+    questions: [
+      { icon: "⚡", label: "Центр силы", q: "Как ты понимаешь для себя понятие «центр» — в теле и в жизни?", placeholder: "Физический центр тяжести, внутренняя опора, ценности..." },
+      { icon: "🏃", label: "Тренировка кора", q: "Какие ощущения в теле во время упражнений для центра?", placeholder: "Стабильность, дрожь, концентрация, сила..." },
+      { icon: "💪", label: "Прогресс", q: "Что ты можешь делать сегодня, чего не могла в День 1?", placeholder: "Физические изменения, новые ощущения, осознания..." },
+      { icon: "🌱", label: "Что растёт", q: "Какое качество в себе ты замечаешь и хочешь развивать дальше?", placeholder: "Терпение, сила, внимательность, мягкость к себе..." }
+    ]
+  },
+  {
+    title: "Интеграция и", em: "итоги",
+    desc: "Седьмой день — собираем всё вместе и смотрим на пройденный путь.",
+    questions: [
+      { icon: "🗺️", label: "Путь недели", q: "Опиши свою неделю одним образом или метафорой.", placeholder: "Например: «Как распускающийся цветок» или «Как первые шаги»..." },
+      { icon: "✨", label: "Главные открытия", q: "Какие 2-3 самых важных открытия о себе ты сделала за эту неделю?", placeholder: "О теле, об эмоциях, о привычках, о ценностях..." },
+      { icon: "🎯", label: "Финальная тренировка", q: "Как ощущается тело сегодня — в начале пути или в середине?", placeholder: "Сравни своё физическое состояние с первым днём..." },
+      { icon: "🌟", label: "Намерение", q: "С каким намерением ты выходишь из этого курса? Что продолжишь делать?", placeholder: "Практики, привычки, отношение к себе, которые хочешь сохранить..." }
+    ]
+  }
+];
+
+let state = JSON.parse(localStorage.getItem('journalState') || 'null') || {
+  userName: '',
+  moods: {},
+  scales: {},
+  answers: {},
+  gratitude: {},
+  savedDays: []
+};
+let currentDay = 0;
+
+function saveState() { localStorage.setItem('journalState', JSON.stringify(state)); }
+
+function startJournal() {
+  const name = document.getElementById('nameInput').value.trim();
+  state.userName = name || 'Участница';
+  saveState();
+  document.getElementById('cover').style.display = 'none';
+  document.getElementById('journal').classList.add('active');
+  document.getElementById('userNameDisplay').textContent = state.userName;
+  renderNav();
+  renderPages();
+  showDay(0);
+}
+
+function renderNav() {
+  const nav = document.getElementById('dayNav');
+  nav.innerHTML = '';
+  days.forEach((d, i) => {
+    const btn = document.createElement('button');
+    btn.className = `day-btn${i === currentDay ? ' active' : ''}${state.savedDays.includes(i) ? ' saved' : ''}`;
+    btn.textContent = `День ${i+1}`;
+    btn.onclick = () => showDay(i);
+    nav.appendChild(btn);
+  });
+}
+
+function renderPages() {
+  const container = document.getElementById('dayPages');
+  container.innerHTML = '';
+  days.forEach((day, di) => {
+    const page = document.createElement('div');
+    page.className = 'day-page';
+    page.id = `day_${di}`;
+
+    let questionsHTML = day.questions.map((q, qi) => `
+      <div class="question-block">
+        <div class="q-icon">${q.icon}</div>
+        <div class="q-label">${q.label}</div>
+        <div class="q-text">${q.q}</div>
+        <textarea class="q-input" id="q_${di}_${qi}" placeholder="${q.placeholder}" rows="3">${state.answers[`${di}_${qi}`] || ''}</textarea>
+      </div>
+    `).join('');
+
+    page.innerHTML = `
+      <div class="day-badge">День ${di+1} из 7</div>
+      <h2 class="day-heading">${day.title} <em>${day.em}</em></h2>
+      <p class="day-desc">${day.desc}</p>
+
+      <div class="mood-block">
+        <div class="mood-title">🌡 Самочувствие</div>
+        <div class="mood-question">Как ты себя чувствуешь прямо сейчас?</div>
+        <div class="mood-emojis">
+          ${[['😔','Тяжело'],['😕','Устала'],['😐','Нейтрально'],['🙂','Хорошо'],['😊','Отлично']].map((m,mi) => `
+            <button class="mood-btn${state.moods[di] === mi ? ' selected' : ''}" onclick="selectMood(${di},${mi})" id="mood_${di}_${mi}">
+              ${m[0]}<span class="mood-label">${m[1]}</span>
+            </button>
+          `).join('')}
+        </div>
+      </div>
+
+      <div class="scale-block">
+        <div class="q-label">📏 Шкала энергии</div>
+        <div class="scale-question">Оцени свой уровень энергии сегодня от 1 до 10</div>
+        <div class="scale-row">
+          ${[1,2,3,4,5,6,7,8,9,10].map(n => `
+            <div class="scale-num${state.scales[di] === n ? ' selected' : ''}" onclick="selectScale(${di},${n})" id="scale_${di}_${n}">${n}</div>
+          `).join('')}
+        </div>
+        <div class="scale-labels"><span>Совсем нет сил</span><span>Полна энергии</span></div>
+      </div>
+
+      ${questionsHTML}
+
+      <div class="gratitude-block">
+        <div class="gratitude-title">🌸 Благодарность</div>
+        <div class="gratitude-q">Назови 3 вещи, за которые ты благодарна сегодня</div>
+        <div class="gratitude-items">
+          ${[0,1,2].map(gi => `
+            <div class="gratitude-item">
+              <div class="g-num">${gi+1}</div>
+              <textarea class="g-input" id="g_${di}_${gi}" placeholder="Я благодарна за..." rows="1">${state.gratitude[`${di}_${gi}`] || ''}</textarea>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+
+      <button class="save-day-btn" onclick="saveDay(${di})">
+        ${state.savedDays.includes(di) ? '✓ Сохранено' : 'Сохранить запись дня'}
+      </button>
+    `;
+    container.appendChild(page);
+  });
+}
+
+function showDay(i) {
+  currentDay = i;
+  document.querySelectorAll('.day-page').forEach(p => p.classList.remove('active'));
+  document.getElementById(`day_${i}`).classList.add('active');
+  renderNav();
+}
+
+function selectMood(day, moodIdx) {
+  state.moods[day] = moodIdx;
+  saveState();
+  document.querySelectorAll(`[id^="mood_${day}_"]`).forEach((btn, i) => {
+    btn.classList.toggle('selected', i === moodIdx);
+  });
+}
+
+function selectScale(day, val) {
+  state.scales[day] = val;
+  saveState();
+  for (let n = 1; n <= 10; n++) {
+    document.getElementById(`scale_${day}_${n}`)?.classList.toggle('selected', n === val);
+  }
+}
+
+function saveDay(di) {
+  // Save all text answers
+  days[di].questions.forEach((_, qi) => {
+    const el = document.getElementById(`q_${di}_${qi}`);
+    if (el) state.answers[`${di}_${qi}`] = el.value;
+  });
+  [0,1,2].forEach(gi => {
+    const el = document.getElementById(`g_${di}_${gi}`);
+    if (el) state.gratitude[`${di}_${gi}`] = el.value;
+  });
+  if (!state.savedDays.includes(di)) state.savedDays.push(di);
+  saveState();
+  showToast('🌿 День ' + (di+1) + ' сохранён!');
+  renderNav();
+  const btn = document.querySelector(`#day_${di} .save-day-btn`);
+  if (btn) btn.textContent = '✓ Сохранено';
+  // Auto go to next day
+  if (di < 6) setTimeout(() => showDay(di + 1), 1200);
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// If already have state, skip cover
+if (state.userName) {
+  document.getElementById('cover').style.display = 'none';
+  document.getElementById('journal').classList.add('active');
+  document.getElementById('userNameDisplay').textContent = state.userName;
+  renderNav();
+  renderPages();
+  showDay(0);
+}
+</script>
+</body>
+</html>
